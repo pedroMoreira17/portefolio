@@ -44,24 +44,25 @@
   }
 }
 
-// Name: plain, light and static — the portrait is the spectacle, the name just signs it.
-// "MOREIRA" measures ≈4.0em in Manrope 300 with the tracking below; sizes derive from that.
+// Name: plain and static, in the hot accent. The hue is what separates it from the
+// greyscale portrait where they overlap, so it needs some weight to carry the colour.
+// "MOREIRA" measures ≈4.1em in Manrope 500 with the tracking below; sizes derive from that.
 .hero__name {
   display: flex;
   flex-direction: column;
   font-family: var(--font-sans);
-  font-weight: 300;
+  font-weight: 500;
   font-size: clamp(3.5rem, 0.6rem + 12.5vw, 17rem);
   line-height: 0.9;
   letter-spacing: -0.03em;
-  color: var(--fg);
+  color: var(--c-hot);
   // keeps the type legible where it overlaps the particles
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.5));
   will-change: transform, opacity;
 
   @include below($bp-md) {
     // fit "MOREIRA" edge to edge inside the gutters
-    font-size: calc((100vw - 2 * var(--gutter)) / 4.15);
+    font-size: calc((100vw - 2 * var(--gutter)) / 4.25);
   }
 }
 
