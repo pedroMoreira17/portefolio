@@ -44,39 +44,25 @@
   }
 }
 
-// Name: a heavy, expanded grotesk gives the chrome enough surface to read as metal.
-// "MOREIRA" measures ≈6.2em at wdth 125 / wght 800 — sizes below are derived from that.
+// Name: plain, light and static — the portrait is the spectacle, the name just signs it.
+// "MOREIRA" measures ≈4.0em in Manrope 300 with the tracking below; sizes derive from that.
 .hero__name {
   display: flex;
   flex-direction: column;
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-stretch: 125%;
-  font-size: clamp(3rem, 0.4rem + 10vw, 13rem);
-  line-height: 0.86;
-  letter-spacing: -0.02em;
-  color: #d9dce0;
-  // lift the metal off the particles
-  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.55));
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: clamp(3.5rem, 0.6rem + 12.5vw, 17rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  // keeps the type legible where it overlaps the particles
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.5));
   will-change: transform, opacity;
-
-  // after the intro: bevel, brushed grain and live specular light (SVG filter in Hero.tsx)
-  &.is-forged {
-    filter: url(#hero-metal) drop-shadow(0 8px 26px rgba(0, 0, 0, 0.6));
-  }
 
   @include below($bp-md) {
     // fit "MOREIRA" edge to edge inside the gutters
-    font-size: calc((100vw - 2 * var(--gutter)) / 6.3);
+    font-size: calc((100vw - 2 * var(--gutter)) / 4.15);
   }
-}
-
-.hero__defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
 }
 
 .hero__word {
@@ -102,45 +88,6 @@
 .hero__char {
   display: inline-block;
   will-change: transform;
-  // Chrome: reflected sky above a hard, dark horizon line and a bright ground below —
-  // that abrupt break mid-glyph is what makes a gradient read as polished metal.
-  // On top, a heat-tinted titanium sheen (orange → white → blue) sweeps across now and then.
-  background-image:
-    linear-gradient(
-      105deg,
-      transparent 38%,
-      rgba(255, 90, 31, 0.8) 45%,
-      rgba(255, 244, 232, 0.95) 50%,
-      rgba(90, 134, 255, 0.75) 55%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      #ffffff 6%,
-      #e9ecf0 18%,
-      #b9c0c9 33%,
-      #8a919b 45%,
-      #4d535c 51.5%,
-      #15181d 52.5%,
-      #353a41 58%,
-      #79808a 70%,
-      #c3c8cf 82%,
-      #f4f5f7 92%
-    );
-  background-size: 300% 100%, 100% 100%;
-  background-position: 160% 0, 0 0;
-  background-repeat: no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: hero-sheen 9s var(--ease-in-out) infinite;
-  animation-delay: calc(var(--i, 0) * 0.06s + 5s);
-}
-
-@keyframes hero-sheen {
-  0%, 62% { background-position: 160% 0, 0 0; }
-  100% { background-position: -60% 0, 0 0; }
 }
 
 .hero__sub {

@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useI18n } from '../../hooks/useI18n';
 import { createIntroTimeline } from '../../animations/hero/introTimeline';
 import { scrollToTarget } from '../../animations/scroll/smoothScroll';
@@ -35,8 +34,6 @@ export function Hero({ reducedMotion, particlesReady, particleCount, onIdentity,
   const rootRef = useRef<HTMLElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const [introRunning, setIntroRunning] = useState(!reducedMotion);
-  /** The name gets its full metal treatment (SVG lighting) once it has landed. */
-  const [forged, setForged] = useState(reducedMotion);
 
   // Build the intro (hidden states are applied before first paint)
   useLayoutEffect(() => {
@@ -49,7 +46,6 @@ export function Hero({ reducedMotion, particlesReady, particleCount, onIdentity,
         onIdentity,
         onComplete: () => {
           setIntroRunning(false);
-          setForged(true);
           try {
             sessionStorage.setItem(INTRO_SEEN_KEY, '1');
           } catch {
@@ -97,83 +93,6 @@ export function Hero({ reducedMotion, particlesReady, particleCount, onIdentity,
     };
   }, [introRunning]);
 
-  // Live metal: the key light follows the cursor (or drifts on its own on touch screens)
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!forged || !root) return;
-    const name = root.querySelector<HTMLElement>('.hero__name');
-    const key = root.querySelector<SVGFEPointLightElement>('#hero-metal-key');
-    const rim = root.querySelector<SVGFEPointLightElement>('#hero-metal-rim');
-    const bump = root.querySelector<SVGFEGaussianBlurElement>('#hero-metal-bump');
-    if (!name || !key || !rim || !bump) return;
-
-    const light = { x: 0, y: 0 };
-    let w = 1;
-    let h = 1;
-    const apply = () => {
-      key.setAttribute('x', light.x.toFixed(1));
-      key.setAttribute('y', light.y.toFixed(1));
-    };
-    const measure = () => {
-      w = name.offsetWidth;
-      h = name.offsetHeight;
-      const fs = parseFloat(getComputedStyle(name).fontSize) || 100;
-      // bevel width scales with the type so it reads the same on every screen
-      bump.setAttribute('stdDeviation', Math.max(1.2, fs * 0.022).toFixed(2));
-      key.setAttribute('z', (w * 0.42).toFixed(0));
-      rim.setAttribute('x', (w * 0.85).toFixed(0));
-      rim.setAttribute('y', (h * 1.7).toFixed(0));
-      rim.setAttribute('z', (h * 0.5).toFixed(0));
-    };
-    measure();
-    light.x = w * 0.22;
-    light.y = -h * 0.45;
-    apply();
-    window.addEventListener('resize', measure);
-
-    if (reducedMotion) {
-      return () => window.removeEventListener('resize', measure);
-    }
-
-    const fine = window.matchMedia('(pointer: fine)').matches;
-    let cleanupMotion: () => void;
-
-    if (fine) {
-      const toX = gsap.quickTo(light, 'x', { duration: 0.9, ease: 'power3', onUpdate: apply });
-      const toY = gsap.quickTo(light, 'y', { duration: 0.9, ease: 'power3', onUpdate: apply });
-      const onMove = (e: PointerEvent) => {
-        if (e.pointerType !== 'mouse' || window.scrollY > window.innerHeight) return;
-        const r = name.getBoundingClientRect();
-        toX(gsap.utils.clamp(-w * 0.2, w * 1.2, e.clientX - r.left));
-        // keep the light above the surface so the bevels catch it from the top
-        toY(gsap.utils.clamp(-h * 1.2, h * 0.6, e.clientY - r.top - h * 0.35));
-      };
-      window.addEventListener('pointermove', onMove, { passive: true });
-      cleanupMotion = () => window.removeEventListener('pointermove', onMove);
-    } else {
-      const drift = gsap.fromTo(
-        light,
-        { x: -w * 0.1 },
-        { x: w * 1.1, duration: 6, ease: 'sine.inOut', yoyo: true, repeat: -1, onUpdate: apply },
-      );
-      const st = ScrollTrigger.create({
-        trigger: root,
-        start: 'top top',
-        end: 'bottom top',
-        onToggle: (self) => (self.isActive ? drift.resume() : drift.pause()),
-      });
-      cleanupMotion = () => {
-        drift.kill();
-        st.kill();
-      };
-    }
-
-    return () => {
-      window.removeEventListener('resize', measure);
-      cleanupMotion();
-    };
-  }, [forged, reducedMotion]);
-
   // Scroll-out: identity typography lifts away as the face disintegrates
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -191,54 +110,6 @@ export function Hero({ reducedMotion, particlesReady, particleCount, onIdentity,
 
   return (
     <section id="hero" ref={rootRef} className="hero" aria-labelledby="hero-title">
-      {/*
-        Metal shader for the name, built from the glyph shapes themselves:
-        blurred alpha → height map → specular lighting (cool key light + hot rim light from below),
-        plus horizontal brushed grain blended into the chrome gradient.
-      */}
-      <svg className="hero__defs" aria-hidden="true" focusable="false">
-        <filter id="hero-metal" x="-5%" y="-10%" width="110%" height="120%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur id="hero-metal-bump" in="SourceAlpha" stdDeviation="3" result="bump" />
-
-          <feSpecularLighting
-            in="bump"
-            surfaceScale="5"
-            specularConstant="1.15"
-            specularExponent="26"
-            lightingColor="#fff6ee"
-            result="keySpec"
-          >
-            <fePointLight id="hero-metal-key" x="200" y="-200" z="500" />
-          </feSpecularLighting>
-          <feComposite in="keySpec" in2="SourceAlpha" operator="in" result="key" />
-
-          <feSpecularLighting
-            in="bump"
-            surfaceScale="5"
-            specularConstant="0.7"
-            specularExponent="16"
-            lightingColor="#ff5a1f"
-            result="rimSpec"
-          >
-            <fePointLight id="hero-metal-rim" x="900" y="600" z="150" />
-          </feSpecularLighting>
-          <feComposite in="rimSpec" in2="SourceAlpha" operator="in" result="rim" />
-
-          <feTurbulence type="fractalNoise" baseFrequency="0.004 0.75" numOctaves="2" seed="7" result="noise" />
-          <feColorMatrix
-            in="noise"
-            type="matrix"
-            values="0.2 0.2 0.2 0 0.2  0.2 0.2 0.2 0 0.2  0.2 0.2 0.2 0 0.2  0 0 0 0 1"
-            result="grainGray"
-          />
-          <feComposite in="grainGray" in2="SourceAlpha" operator="in" result="grain" />
-          <feBlend in="grain" in2="SourceGraphic" mode="soft-light" result="brushed" />
-
-          <feComposite in="key" in2="brushed" operator="arithmetic" k2="0.85" k3="1" result="lit" />
-          <feComposite in="rim" in2="lit" operator="arithmetic" k2="0.6" k3="1" />
-        </filter>
-      </svg>
-
       <div className="hero__portrait" role="img" aria-label={t.a11y.portrait} />
 
       <div className="hero__top container">
@@ -251,7 +122,7 @@ export function Hero({ reducedMotion, particlesReady, particleCount, onIdentity,
       </div>
 
       <div className="hero__identity container">
-        <h1 id="hero-title" className={`hero__name${forged ? ' is-forged' : ''}`} aria-label="Pedro Moreira">
+        <h1 id="hero-title" className="hero__name" aria-label="Pedro Moreira">
           {NAME.map((word, w) => (
             <span className="hero__word" key={word} aria-hidden="true">
               {word.split('').map((ch, i) => (

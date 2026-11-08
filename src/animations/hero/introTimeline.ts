@@ -37,8 +37,7 @@ export function createIntroTimeline({ root, reducedMotion, onIdentity, onComplet
   sceneState.form = 0;
 
   // hidden initial states, applied before first paint (called from a layout effect)
-  // letters rise condensed and are "rolled out" to full width (variable wdth axis)
-  gsap.set(chars, { yPercent: 118, fontStretch: '62%' });
+  gsap.set(chars, { yPercent: 118 });
   gsap.set(lines, { yPercent: 105, opacity: 0 });
   gsap.set(metas, { opacity: 0 });
   gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' });
@@ -53,9 +52,7 @@ export function createIntroTimeline({ root, reducedMotion, onIdentity, onComplet
 
   // Phase 4 — Identity (overlaps the end of formation so it feels composed, not sequential)
   tl.addLabel('identity', 3.5);
-  tl.to(chars, { yPercent: 0, duration: 1.5, ease: 'expo.out', stagger: 0.05 }, 'identity');
-  tl.to(chars, { fontStretch: '125%', duration: 1.8, ease: 'expo.inOut', stagger: 0.04 }, 'identity+=0.2');
-  tl.to(rule, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 'identity+=0.5');
+  tl.to(chars, { yPercent: 0, duration: 1.5, ease: 'expo.out', stagger: 0.05 }, 'identity');  tl.to(rule, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 'identity+=0.5');
   tl.to(lines, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.12 }, 'identity+=0.7');
   tl.call(onIdentity, [], 'identity+=0.6');
   tl.to(metas, { opacity: 1, duration: 1.2, ease: 'power2.out', stagger: 0.1 }, 'identity+=1.2');

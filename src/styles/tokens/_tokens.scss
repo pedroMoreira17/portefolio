@@ -28,12 +28,11 @@ $bp-xl: 1440px;
   --c-green: #6cffa6;
 
   // signal colour: motion and attention only (~5% of the screen), never large static areas.
-  // Complementary to the cool accents above; reads as molten metal next to the chrome name.
+  // Complementary to the cool accents above.
   --c-hot: #ff5a1f;
   --c-hot-glow: rgba(255, 90, 31, 0.55);
 
   // type
-  --font-display: 'Archivo Variable', 'Archivo', 'Arial Black', system-ui, sans-serif;
   --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Manrope Variable', 'Manrope', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
