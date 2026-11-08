@@ -1,0 +1,57 @@
+// Design tokens — single source of truth for colour, type, spacing and motion.
+
+$bp-sm: 600px;
+$bp-md: 768px;
+$bp-lg: 1100px;
+$bp-xl: 1440px;
+
+@mixin below($bp) {
+  @media (max-width: ($bp - 1px)) { @content; }
+}
+@mixin above($bp) {
+  @media (min-width: $bp) { @content; }
+}
+
+:root {
+  // colour
+  --bg: #050505;
+  --bg-raised: #0b0b0b;
+  --fg: #f3f2ee;
+  --fg-dim: #a3a29d;
+  --fg-faint: #807f7a; // ≈5:1 on --bg (AA for the small mono labels)
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.32);
+
+  --c-blue: #5a86ff;
+  --c-violet: #a083ff;
+  --c-cyan: #5fe1ff;
+  --c-green: #6cffa6;
+
+  // signal colour: motion and attention only (~5% of the screen), never large static areas.
+  // Complementary to the cool accents above; reads as molten metal next to the chrome name.
+  --c-hot: #ff5a1f;
+  --c-hot-glow: rgba(255, 90, 31, 0.55);
+
+  // type
+  --font-display: 'Archivo Variable', 'Archivo', 'Arial Black', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Manrope Variable', 'Manrope', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+  --fs-mono: 0.72rem;
+  --fs-small: 0.875rem;
+  --fs-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --fs-lead: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+  --fs-h3: clamp(1.8rem, 1.2rem + 2.2vw, 3.2rem);
+  --fs-h2: clamp(2.8rem, 1.6rem + 5.4vw, 7.5rem);
+  --fs-display: clamp(4.2rem, 1rem + 13.2vw, 17rem);
+
+  // space
+  --gutter: clamp(1.25rem, 0.6rem + 3vw, 4rem);
+  --section-pad: clamp(6rem, 4rem + 10vw, 14rem);
+  --nav-h: 64px;
+
+  // motion
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}

@@ -1,0 +1,180 @@
+@use '../../styles/tokens/tokens' as *;
+
+// Horizontal pinned traverse only when motion is welcome on wide screens;
+// otherwise the domains stack vertically (also the reduced-motion layout).
+@mixin horizontal {
+  @media (min-width: $bp-lg) and (prefers-reduced-motion: no-preference) { @content; }
+}
+@mixin vertical {
+  @media (max-width: ($bp-lg - 1px)), (prefers-reduced-motion: reduce) { @content; }
+}
+
+.expertise {
+  position: relative;
+  z-index: 1;
+}
+
+.expertise__intro {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vh, 3rem);
+  padding-block: var(--section-pad) clamp(6rem, 22vh, 14rem);
+}
+
+.expertise__title {
+  font-size: var(--fs-h2);
+  max-width: 14ch;
+  em {
+    font-style: italic;
+    color: var(--fg-dim);
+  }
+}
+
+.expertise__intro-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.expertise__lead {
+  max-width: 34rem;
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+  color: var(--fg-dim);
+}
+
+.expertise__stats {
+  display: flex;
+  gap: 3rem;
+  div {
+    display: grid;
+    gap: 0.35rem;
+  }
+  dd {
+    font-family: var(--font-serif);
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--fg);
+    text-transform: none;
+  }
+}
+
+// ---- horizontal traverse -------------------------------------------------------
+
+.expertise__pin {
+  position: relative;
+  @include horizontal {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.expertise__track {
+  display: flex;
+  @include horizontal {
+    width: max-content;
+    padding-left: var(--gutter);
+    padding-right: 12vw;
+    gap: 8vw;
+    will-change: transform;
+  }
+  @include vertical {
+    flex-direction: column;
+    gap: clamp(4.5rem, 12vw, 7rem);
+    padding-inline: var(--gutter);
+    padding-bottom: var(--section-pad);
+  }
+}
+
+.domain {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vh, 3rem);
+
+  @include above($bp-lg) {
+    width: min(74vw, 1180px);
+    height: min(76vh, 760px);
+  }
+}
+
+.domain__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  @include below($bp-md) {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}
+
+.domain__index {
+  color: var(--accent);
+}
+.domain__of {
+  color: var(--fg-faint);
+}
+
+.domain__title {
+  margin-top: 1.25rem;
+  font-size: var(--fs-h3);
+  line-height: 1;
+}
+
+.domain__chart {
+  flex: 1;
+  position: relative;
+  @include above($bp-lg) {
+    margin-right: 6%;
+  }
+}
+
+.expertise__progress {
+  display: none;
+  @include horizontal {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+.expertise__bar {
+  position: relative;
+  height: 1px;
+  background: var(--line);
+  &-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--fg-faint), var(--c-hot));
+    box-shadow: 0 0 10px var(--c-hot-glow);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+}
+
+.expertise__ticks {
+  display: flex;
+  gap: 1rem;
+}
+.expertise__tick {
+  color: var(--fg-faint);
+  transition: color 0.4s ease;
+  &.is-active {
+    color: var(--fg);
+  }
+}

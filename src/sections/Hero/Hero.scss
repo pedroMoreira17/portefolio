@@ -1,0 +1,249 @@
+@use '../../styles/tokens/tokens' as *;
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding-block: calc(var(--nav-h) + 0.5rem) 2rem;
+  z-index: 1;
+
+  @include below($bp-md) {
+    grid-template-rows: auto 1fr auto;
+  }
+}
+
+.hero__portrait {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero__skip {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line-strong);
+  transition: color 0.3s ease;
+  &:hover {
+    color: var(--fg);
+  }
+}
+
+.hero__identity {
+  align-self: end;
+  padding-bottom: clamp(2rem, 6vh, 5rem);
+
+  @include below($bp-md) {
+    padding-bottom: 1.5rem;
+  }
+}
+
+// Name: a heavy, expanded grotesk gives the chrome enough surface to read as metal.
+// "MOREIRA" measures ≈6.2em at wdth 125 / wght 800 — sizes below are derived from that.
+.hero__name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 125%;
+  font-size: clamp(3rem, 0.4rem + 10vw, 13rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  color: #d9dce0;
+  // lift the metal off the particles
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.55));
+  will-change: transform, opacity;
+
+  // after the intro: bevel, brushed grain and live specular light (SVG filter in Hero.tsx)
+  &.is-forged {
+    filter: url(#hero-metal) drop-shadow(0 8px 26px rgba(0, 0, 0, 0.6));
+  }
+
+  @include below($bp-md) {
+    // fit "MOREIRA" edge to edge inside the gutters
+    font-size: calc((100vw - 2 * var(--gutter)) / 6.3);
+  }
+}
+
+.hero__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero__word {
+  display: block;
+  white-space: nowrap;
+
+  &:nth-child(2) {
+    padding-left: 0.42em;
+    @include below($bp-md) {
+      padding-left: 0;
+    }
+  }
+}
+
+.hero__char-mask {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.08em;
+  padding-top: 0.06em;
+  vertical-align: top;
+}
+
+.hero__char {
+  display: inline-block;
+  will-change: transform;
+  // Chrome: reflected sky above a hard, dark horizon line and a bright ground below —
+  // that abrupt break mid-glyph is what makes a gradient read as polished metal.
+  // On top, a heat-tinted titanium sheen (orange → white → blue) sweeps across now and then.
+  background-image:
+    linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 90, 31, 0.8) 45%,
+      rgba(255, 244, 232, 0.95) 50%,
+      rgba(90, 134, 255, 0.75) 55%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      #ffffff 6%,
+      #e9ecf0 18%,
+      #b9c0c9 33%,
+      #8a919b 45%,
+      #4d535c 51.5%,
+      #15181d 52.5%,
+      #353a41 58%,
+      #79808a 70%,
+      #c3c8cf 82%,
+      #f4f5f7 92%
+    );
+  background-size: 300% 100%, 100% 100%;
+  background-position: 160% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: hero-sheen 9s var(--ease-in-out) infinite;
+  animation-delay: calc(var(--i, 0) * 0.06s + 5s);
+}
+
+@keyframes hero-sheen {
+  0%, 62% { background-position: 160% 0, 0 0; }
+  100% { background-position: -60% 0, 0 0; }
+}
+
+.hero__sub {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1.25rem;
+  align-items: start;
+  max-width: 34rem;
+  margin-top: clamp(1.5rem, 3vh, 2.5rem);
+  margin-left: 0.6vw;
+
+  @include below($bp-md) {
+    margin-left: 0;
+    max-width: none;
+  }
+}
+
+.hero__rule {
+  grid-row: span 2;
+  width: clamp(2.5rem, 5vw, 5rem);
+  height: 1px;
+  margin-top: 0.7em;
+  background: var(--c-hot);
+  box-shadow: 0 0 12px var(--c-hot-glow);
+}
+
+.hero__line-mask {
+  overflow: clip;
+}
+
+.hero__role {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.hero__tagline {
+  margin-top: 0.75rem;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--fg-dim);
+  max-width: 26rem;
+}
+
+.hero__hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+
+  @include below($bp-md) {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+}
+
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0;
+  transition: color 0.3s ease;
+  &:hover {
+    color: var(--fg);
+  }
+
+  &-line {
+    position: relative;
+    width: 1px;
+    height: 46px;
+    background: var(--line);
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent, var(--c-hot));
+      animation: hero-scroll 2.2s var(--ease-in-out) infinite;
+    }
+  }
+}
+
+@keyframes hero-scroll {
+  0% { transform: translateY(-100%); }
+  55% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+.hero__count {
+  text-align: right;
+  max-width: 22rem;
+  color: var(--fg-faint);
+
+  &-num {
+    color: var(--fg);
+  }
+
+  @include below($bp-md) {
+    text-align: left;
+    max-width: 12rem;
+    font-size: 0.62rem;
+  }
+}

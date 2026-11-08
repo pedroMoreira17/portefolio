@@ -1,0 +1,120 @@
+@use '../../styles/tokens/tokens' as *;
+
+.constellation {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+
+  @include below($bp-lg) {
+    min-height: 0;
+    height: auto;
+  }
+}
+
+.constellation__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+
+  line {
+    stroke: var(--line);
+    stroke-width: 1;
+    transition: stroke 0.4s ease;
+    &.is-active {
+      stroke: var(--accent, var(--fg));
+    }
+  }
+
+  @include below($bp-lg) {
+    display: none;
+  }
+}
+
+.constellation__nodes {
+  position: absolute;
+  inset: 0;
+
+  @include below($bp-lg) {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 1.4rem;
+  }
+}
+
+.node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transform: translate(-6px, -50%);
+  white-space: nowrap;
+  cursor: default;
+  animation: node-float 9s ease-in-out infinite;
+  animation-delay: var(--d);
+
+  @include below($bp-lg) {
+    position: static;
+    transform: none;
+    animation: none;
+  }
+
+  &__dot {
+    width: 5px;
+    height: 5px;
+    flex: none;
+    background: var(--fg-faint);
+    transition: background 0.3s ease, transform 0.4s var(--ease-out);
+    @include below($bp-lg) {
+      display: none;
+    }
+  }
+
+  &__label {
+    color: var(--fg-dim);
+    transition: color 0.35s ease, letter-spacing 0.5s var(--ease-out);
+  }
+
+  &--xl .node__label {
+    font-family: var(--font-serif);
+    font-size: clamp(1.9rem, 1rem + 2.4vw, 3.4rem);
+    line-height: 1;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  &--md .node__label {
+    font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.4rem);
+    color: var(--fg);
+  }
+  &--sm .node__label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+  }
+
+  .has-focus & .node__label {
+    color: var(--fg-faint);
+  }
+  .has-focus &.is-linked .node__label {
+    color: var(--fg);
+  }
+  &:hover .node__label {
+    color: var(--fg) !important;
+  }
+  &:hover .node__dot,
+  &.is-linked .node__dot {
+    background: var(--accent, var(--fg));
+    transform: rotate(45deg) scale(1.4);
+  }
+}
+
+@keyframes node-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}

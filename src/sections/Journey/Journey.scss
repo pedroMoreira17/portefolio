@@ -1,0 +1,289 @@
+@use '../../styles/tokens/tokens' as *;
+
+// Keep in sync with MOBILE_LINE_X_PX in ParticleEngine.ts
+$axis-mobile: 28px;
+
+.journey {
+  position: relative;
+  z-index: 1;
+  padding-block: var(--section-pad);
+}
+
+.journey__head {
+  display: grid;
+  gap: clamp(1.5rem, 4vh, 3rem);
+  margin-bottom: clamp(5rem, 14vh, 10rem);
+}
+
+.journey__title {
+  font-size: var(--fs-h2);
+  max-width: 12ch;
+  em {
+    font-style: italic;
+    color: var(--fg-dim);
+  }
+}
+
+.timeline {
+  position: relative;
+}
+
+.timeline__axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--line);
+
+  @include below($bp-md) {
+    left: $axis-mobile;
+  }
+}
+
+.timeline__fill {
+  position: absolute;
+  inset: 0;
+  // cools from white-hot at the travelling head back to faint grey behind it
+  background: linear-gradient(to bottom, var(--fg-faint), var(--fg) 82%, var(--c-hot));
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+.timeline__head {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  background: var(--c-hot);
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 4px 1px var(--c-hot),
+    0 0 22px 4px var(--c-hot-glow);
+
+  // molten trail just above the head
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    width: 1px;
+    height: 90px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, transparent, var(--c-hot));
+  }
+}
+
+.timeline__list {
+  display: grid;
+  gap: clamp(7rem, 22vh, 14rem);
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr clamp(4rem, 8vw, 9rem) 1fr;
+  align-items: start;
+
+  @include below($bp-md) {
+    grid-template-columns: 1fr;
+    padding-left: calc(#{$axis-mobile} + 1.75rem - var(--gutter));
+    margin-left: 0;
+  }
+}
+
+.entry__node {
+  position: absolute;
+  left: 50%;
+  top: 0.9rem;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--fg-faint);
+  background: var(--bg);
+  transform: translateX(-50%) rotate(45deg);
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+
+  @include below($bp-md) {
+    left: calc(#{$axis-mobile} - var(--gutter));
+  }
+
+  .entry.is-active & {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 22px var(--accent);
+  }
+
+  // the ongoing role is live: hot node with a ping ring
+  .entry--current & {
+    border-color: var(--c-hot);
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border: 1px solid var(--c-hot);
+      animation: node-ping 2.4s var(--ease-out) infinite;
+    }
+  }
+  .entry--current.is-active & {
+    background: var(--c-hot);
+    border-color: var(--c-hot);
+    box-shadow: 0 0 22px var(--c-hot-glow);
+  }
+}
+
+@keyframes node-ping {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+.entry__marker {
+  font-family: var(--font-serif);
+  font-size: clamp(5rem, 2rem + 10vw, 13rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--fg-faint);
+  transition: color 0.8s var(--ease-out), -webkit-text-stroke-color 0.8s ease;
+
+  .entry.is-active & {
+    color: var(--fg);
+    -webkit-text-stroke-color: transparent;
+  }
+
+  @include below($bp-md) {
+    font-size: clamp(4rem, 22vw, 6.5rem);
+    margin-bottom: 1.5rem;
+  }
+}
+
+.entry--education .entry__marker {
+  font-style: italic;
+}
+
+.entry__marker-mask {
+  display: inline-block;
+  overflow: clip;
+  padding-top: 0.08em;
+}
+.entry__marker-char {
+  display: inline-block;
+}
+
+.entry--left {
+  .entry__marker {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    @include below($bp-md) { text-align: left; }
+  }
+  .entry__body {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+.entry--right {
+  .entry__marker {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .entry__body {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    @include below($bp-md) { text-align: left; }
+    .entry__meta,
+    .entry__focus ul,
+    .entry__tech {
+      justify-content: flex-end;
+      @include below($bp-md) { justify-content: flex-start; }
+    }
+  }
+}
+
+@include below($bp-md) {
+  .entry .entry__marker,
+  .entry .entry__body {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+.entry__body {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 36rem;
+  .entry--right & {
+    justify-self: end;
+    @include below($bp-md) { justify-self: start; }
+  }
+}
+
+.entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.5rem;
+  .entry__kind {
+    color: var(--accent);
+  }
+}
+
+.entry__org {
+  font-size: var(--fs-small);
+  letter-spacing: 0.02em;
+  color: var(--fg-dim);
+}
+
+.entry__role {
+  font-size: clamp(2rem, 1.3rem + 2.2vw, 3.4rem);
+  line-height: 1;
+}
+
+.entry__desc {
+  color: var(--fg-dim);
+  line-height: 1.7;
+}
+
+.entry__focus,
+.entry__stack {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.entry__focus ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.25rem;
+  li {
+    position: relative;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      margin-right: 0.55rem;
+      vertical-align: middle;
+      background: var(--accent);
+    }
+  }
+}
+
+.entry__tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  li {
+    padding: 0.32rem 0.55rem;
+    border: 1px solid var(--line);
+    color: var(--fg-dim);
+    letter-spacing: 0.06em;
+    text-transform: none;
+    transition: border-color 0.3s ease, color 0.3s ease;
+    &:hover {
+      border-color: var(--accent);
+      color: var(--fg);
+    }
+  }
+}
