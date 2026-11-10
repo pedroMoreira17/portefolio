@@ -77,7 +77,9 @@ fi
 rm -rf "`$tmp"
 "@
   Write-Host '== instalar'
-  ($remoto -replace "`r", '') | ssh $Servidor 'bash -s'
+  # O PowerShell 5.1 pode pôr um BOM no início do que envia por pipe; sem o tirar, o bash não reconhecia o "set -eu"
+  # da primeira linha e o script do servidor deixava de parar ao primeiro erro.
+  ($remoto -replace "`r", '') | ssh $Servidor "sed '1s/^\xEF\xBB\xBF//' | bash -s"
   if ($LASTEXITCODE -ne 0) { throw 'PARADO: a instalação no servidor falhou (ver acima).' }
   Remove-Item $tar, $pacote -Recurse -ErrorAction SilentlyContinue
 
