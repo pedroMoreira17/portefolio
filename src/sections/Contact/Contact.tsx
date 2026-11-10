@@ -5,7 +5,7 @@ import { useI18n } from '../../hooks/useI18n';
 import { useGsapContext } from '../../hooks/useGsapContext';
 import { contactChannels } from '../../data/contact';
 import { SplitWords } from '../../components/typography/SplitWords';
-import { revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
+import { revealFadeOnly, revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
 import './Contact.scss';
 
 interface Props {
@@ -19,7 +19,10 @@ export function Contact({ reducedMotion }: Props) {
   useGsapContext(
     rootRef,
     (_ctx, root) => {
-      if (reducedMotion) return;
+      if (reducedMotion) {
+        revealFadeOnly(root, '[data-reveal], [data-split], .channel');
+        return;
+      }
       revealSplitHeadlines(root, 'top 75%');
       revealFadeUp(root);
       gsap.from('.channel', {

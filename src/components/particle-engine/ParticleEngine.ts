@@ -245,12 +245,15 @@ export class ParticleEngine {
     const reduced = sceneState.reducedMotion;
     const target = deriveUniformTargets(sceneState);
     if (reduced) {
-      // static composition: portrait in the hero, faint elsewhere, back for the finale
+      // static composition: portrait in the hero, gone while the content scrolls by
+      // (never a ghost behind the text), back for the finale
       target.wCloud = 0;
       target.wLine = 0;
       target.disperse = 0;
       const heroFade = 1 - Math.min(1, sceneState.heroToExpertise * 1.2);
-      target.alpha = Math.max(heroFade, target.contactMix * 0.62, 0.07);
+      target.alpha = Math.max(heroFade, target.contactMix * 0.62);
+      // switch to the contact layout only while invisible, so the face never slides
+      target.contactMix = heroFade > 0 ? 0 : 1;
     }
     // narrow screens: contact text scrolls over the returning portrait → keep it a ghost
     if (this.camera.aspect < 0.9) target.alpha *= 1 - 0.78 * target.contactMix;

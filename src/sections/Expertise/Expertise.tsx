@@ -6,7 +6,7 @@ import { useGsapContext } from '../../hooks/useGsapContext';
 import { skillDomains } from '../../data/skills/skills';
 import { SplitWords } from '../../components/typography/SplitWords';
 import { SkillConstellation } from '../../components/constellation/SkillConstellation';
-import { revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
+import { revealFadeOnly, revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
 import { sceneState } from '../../components/particle-engine/sceneState';
 import './Expertise.scss';
 
@@ -24,7 +24,10 @@ export function Expertise({ reducedMotion }: Props) {
   useGsapContext(
     rootRef,
     (_ctx, root) => {
-      if (reducedMotion) return;
+      if (reducedMotion) {
+        revealFadeOnly(root, '.expertise__intro [data-reveal], .expertise__intro [data-split], .domain');
+        return;
+      }
       revealSplitHeadlines(root);
       revealFadeUp(root, '.expertise__intro [data-reveal]');
 
@@ -71,6 +74,7 @@ export function Expertise({ reducedMotion }: Props) {
           tl.from(panel.querySelectorAll('.domain__index, .domain__meta'), { opacity: 0, y: 20, duration: 0.8, stagger: 0.08, ease: 'power3.out' })
             .from(panel.querySelectorAll('.domain__title .split-word > span'), { yPercent: 110, duration: 1.1, stagger: 0.06, ease: 'expo.out' }, 0.05)
             .from(panel.querySelectorAll('.constellation__lines line'), { opacity: 0, duration: 1.2, stagger: 0.02, ease: 'power2.out' }, 0.3)
+            .from(panel.querySelectorAll('.constellation__beams'), { opacity: 0, duration: 1.2, ease: 'power2.out' }, 0.9)
             .from(panel.querySelectorAll('.node'), { opacity: 0, scale: 0.85, duration: 0.9, stagger: 0.035, ease: 'power3.out' }, 0.25);
         });
       });

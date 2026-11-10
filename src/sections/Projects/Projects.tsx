@@ -5,7 +5,7 @@ import { useGsapContext } from '../../hooks/useGsapContext';
 import { projects } from '../../data/projects/projects';
 import { SplitWords } from '../../components/typography/SplitWords';
 import { ProjectShowcase } from '../../components/projects/ProjectShowcase';
-import { revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
+import { revealFadeOnly, revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
 import './Projects.scss';
 
 interface Props {
@@ -19,7 +19,10 @@ export function Projects({ reducedMotion }: Props) {
   useGsapContext(
     rootRef,
     (_ctx, root) => {
-      if (reducedMotion) return;
+      if (reducedMotion) {
+        revealFadeOnly(root, '[data-reveal], [data-split], .project__visual');
+        return;
+      }
       revealSplitHeadlines(root);
       revealFadeUp(root);
 

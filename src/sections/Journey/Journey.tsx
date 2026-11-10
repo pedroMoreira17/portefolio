@@ -5,7 +5,7 @@ import { useGsapContext } from '../../hooks/useGsapContext';
 import { journey } from '../../data/experiences/experiences';
 import { SplitWords } from '../../components/typography/SplitWords';
 import { TimelineEntry } from '../../components/timeline/TimelineEntry';
-import { revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
+import { revealFadeOnly, revealFadeUp, revealSplitHeadlines } from '../../animations/transitions/reveal';
 import './Journey.scss';
 
 interface Props {
@@ -19,11 +19,18 @@ export function Journey({ reducedMotion }: Props) {
   useGsapContext(
     rootRef,
     (_ctx, root) => {
-      if (reducedMotion) return;
+      const timeline = root.querySelector<HTMLElement>('.timeline')!;
+
+      if (reducedMotion) {
+        // no travelling head: the axis is simply drawn, and every entry reads as active
+        gsap.set('.timeline__fill', { scaleY: 1 });
+        gsap.set('.timeline__head', { autoAlpha: 0 });
+        gsap.utils.toArray<HTMLElement>('.entry', root).forEach((entry) => entry.classList.add('is-active'));
+        revealFadeOnly(root, '[data-reveal], [data-split], .entry');
+        return;
+      }
       revealSplitHeadlines(root);
       revealFadeUp(root);
-
-      const timeline = root.querySelector<HTMLElement>('.timeline')!;
       // progress line + travelling head
       gsap.fromTo(
         '.timeline__fill',

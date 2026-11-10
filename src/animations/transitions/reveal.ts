@@ -32,6 +32,21 @@ export function revealFadeUp(root: HTMLElement, selector = '[data-reveal]') {
   });
 }
 
+/**
+ * Reduced-motion counterpart of the reveals above: a short opacity fade, no movement.
+ * Fading is not motion, so content still arrives with some finish instead of popping in.
+ */
+export function revealFadeOnly(root: HTMLElement, selector = '[data-reveal], [data-split]') {
+  const items = gsap.utils.toArray<HTMLElement>(selector, root);
+  if (!items.length) return;
+  gsap.set(items, { opacity: 0 });
+  ScrollTrigger.batch(items, {
+    start: 'top 92%',
+    once: true,
+    onEnter: (batch) => gsap.to(batch, { opacity: 1, duration: 0.6, ease: 'power1.out', stagger: 0.05, overwrite: true }),
+  });
+}
+
 /** Thin rules that draw themselves in. */
 export function revealRules(root: HTMLElement, selector = '[data-rule]') {
   gsap.utils.toArray<HTMLElement>(selector, root).forEach((el) => {

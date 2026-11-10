@@ -21,10 +21,25 @@ export function detectQuality(): QualityProfile {
   return { tier: 'high', count: 85000, maxPixelRatio: 1.75, pointSize: 1.08 };
 }
 
+/** Renderers that emulate the GPU on the CPU: WebGL "works" but at a few frames per second. */
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render driver|mesa offscreen/i;
+
+/**
+ * True only for hardware-accelerated WebGL. With hardware acceleration off, browsers
+ * either expose no WebGL at all or a CPU emulation of it; both go to the 2D fallback.
+ * `?renderer=2d` forces the fallback (useful to check it without touching browser settings).
+ */
 export function hasWebGL(): boolean {
+  if (new URLSearchParams(window.location.search).get('renderer') === '2d') return false;
   try {
     const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    const gl = (c.getContext('webgl2') || c.getContext('webgl')) as WebGLRenderingContext | null;
+    if (!gl) return false;
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const renderer = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? '');
+    const software = SOFTWARE_RENDERER.test(renderer);
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return !software;
   } catch {
     return false;
   }
