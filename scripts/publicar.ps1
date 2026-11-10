@@ -49,6 +49,8 @@ echo "no servidor: `$(du -sh "`$root/$site" | cut -f1) em `$root/$site"
   Remove-Item $tar -ErrorAction SilentlyContinue
 
   Write-Host '== verificar'
+  # O PowerShell 5.1 nem sempre ativa o TLS 1.2 por omissão.
+  [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
   try {
     $r = Invoke-WebRequest "https://$site/" -UseBasicParsing -TimeoutSec 20
     Write-Host "https://$site/ -> $($r.StatusCode)"
