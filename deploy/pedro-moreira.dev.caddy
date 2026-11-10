@@ -1,0 +1,27 @@
+# Site do portefólio, servido pelo Caddy do servidor (o do holyvestor, que importa ~/sites/*.caddy).
+# O scripts\publicar.ps1 copia este ficheiro para ~/sites/pedro-moreira.dev.caddy, valida e recarrega o Caddy.
+# Os ficheiros do site ficam em ~/sites/pedro-moreira.dev (no contentor: /srv/sites/pedro-moreira.dev).
+# DNS (Cloudflare, "DNS only"): A @ -> IPv4 do servidor; CNAME www -> pedro-moreira.dev.
+
+pedro-moreira.dev {
+	encode zstd gzip
+	root * /srv/sites/pedro-moreira.dev
+
+	# O Vite põe uma impressão digital em tudo o que está em /assets/: cache de um ano. O resto (index.html, CV) revalida.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	header ?Cache-Control "no-cache"
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		-Server
+	}
+
+	file_server
+}
+
+www.pedro-moreira.dev {
+	redir https://pedro-moreira.dev{uri} permanent
+}
