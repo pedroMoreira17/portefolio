@@ -3,7 +3,7 @@ import type { Lang } from '../types';
 const en = {
   meta: {
     title: 'Pedro Moreira — Software Engineer',
-    description: 'Software Engineer building digital products through engineering, data and artificial intelligence.',
+    description: 'Software Engineer at Sysnovare. I design, build, test and maintain full-stack software, applying machine learning and AI where they solve real problems.',
   },
   a11y: {
     skip: 'Skip to content',
@@ -79,7 +79,7 @@ export type UIStrings = typeof en;
 const pt: UIStrings = {
   meta: {
     title: 'Pedro Moreira — Engenheiro de Software',
-    description: 'Engenheiro de Software que constrói produtos digitais através de engenharia, dados e inteligência artificial.',
+    description: 'Engenheiro de Software na Sysnovare. Idealizo, desenvolvo, testo e mantenho software full-stack, aplicando machine learning e IA onde resolvem problemas reais.',
   },
   a11y: {
     skip: 'Saltar para o conteúdo',
