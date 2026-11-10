@@ -23,6 +23,7 @@ export function createIntroTimeline({ root, reducedMotion, onIdentity, onComplet
   const lines = q('[data-hero-line]');
   const metas = q('[data-hero-meta]');
   const rule = q('[data-hero-rule]');
+  const name = q('.hero__name');
 
   if (reducedMotion) {
     sceneState.appear = 1;
@@ -41,6 +42,7 @@ export function createIntroTimeline({ root, reducedMotion, onIdentity, onComplet
   gsap.set(lines, { yPercent: 105, opacity: 0 });
   gsap.set(metas, { opacity: 0 });
   gsap.set(rule, { scaleX: 0, transformOrigin: 'left center' });
+  gsap.set(name, { '--name-outline': 0 });
 
   const tl = gsap.timeline({ paused: true });
 
@@ -52,7 +54,10 @@ export function createIntroTimeline({ root, reducedMotion, onIdentity, onComplet
 
   // Phase 4 — Identity (overlaps the end of formation so it feels composed, not sequential)
   tl.addLabel('identity', 3.5);
-  tl.to(chars, { yPercent: 0, duration: 1.5, ease: 'expo.out', stagger: 0.05 }, 'identity');  tl.to(rule, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 'identity+=0.5');
+  tl.to(chars, { yPercent: 0, duration: 1.5, ease: 'expo.out', stagger: 0.05 }, 'identity');
+  // the silver outline is drawn once the last letter has landed
+  tl.to(name, { '--name-outline': 1, duration: 1.4, ease: 'power2.out' }, 'identity+=1.9');
+  tl.to(rule, { scaleX: 1, duration: 1.4, ease: 'expo.inOut' }, 'identity+=0.5');
   tl.to(lines, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.12 }, 'identity+=0.7');
   tl.call(onIdentity, [], 'identity+=0.6');
   tl.to(metas, { opacity: 1, duration: 1.2, ease: 'power2.out', stagger: 0.1 }, 'identity+=1.2');

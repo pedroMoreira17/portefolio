@@ -56,6 +56,13 @@
   line-height: 0.9;
   letter-spacing: -0.03em;
   color: var(--c-hot);
+  // silver outline with a soft glow, faded in by the intro once the letters land (--name-outline 0 → 1).
+  // The fill is painted over the inner half of the stroke, so only ~1.25px shows.
+  -webkit-text-stroke: 2.5px color-mix(in srgb, var(--c-silver) calc(var(--name-outline, 1) * 100%), transparent);
+  text-shadow:
+    0 0 6px color-mix(in srgb, var(--c-silver) calc(var(--name-outline, 1) * 55%), transparent),
+    0 0 24px color-mix(in srgb, var(--c-silver) calc(var(--name-outline, 1) * 28%), transparent);
+  paint-order: stroke fill;
   // keeps the type legible where it overlaps the particles
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.5));
   will-change: transform, opacity;

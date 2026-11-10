@@ -16,6 +16,8 @@ export const particleVertexShader = /* glsl */ `
   uniform float uLineFlow;
   uniform float uMotion;
   uniform vec3  uHot;
+  uniform vec2  uPointer;
+  uniform float uPointerForce;
 
   attribute vec3 aFace;
   attribute vec3 aCloud;
@@ -79,6 +81,20 @@ export const particleVertexShader = /* glsl */ `
     ) * local * 0.22;
 
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+
+    // --- pointer field -----------------------------------------------------------
+    // uPointer is the cursor ray in view space per unit of depth, so the field
+    // sits under the cursor at every depth. Particles are pushed aside, swirl a
+    // little and lift towards the camera, then fall back as the force decays.
+    vec2 toPointer = mv.xy - uPointer * -mv.z;
+    float pDist = length(toPointer);
+    float field = exp(-pDist * pDist / 0.11) * uPointerForce * uMotion;
+    vec2 away = toPointer / (pDist + 0.0001);
+    float pushR = 0.45 + fract(aRand.z * 13.7);
+    mv.xy += away * field * 0.2 * pushR;
+    mv.xy += vec2(-away.y, away.x) * field * 0.06 * sin(t * 2.2 + phase);
+    mv.z += field * 0.35 * fract(aRand.x * 9.1);
+
     gl_Position = projectionMatrix * mv;
 
     float lum = dot(aColor, vec3(0.299, 0.587, 0.114));
@@ -92,10 +108,12 @@ export const particleVertexShader = /* glsl */ `
 
     // --- heat ---------------------------------------------------------------------
     // ~12% of particles glow like embers while the portrait erodes, and a few
-    // sparks ride the timeline column (same hot accent as the UI).
+    // sparks ride the timeline column (same hot accent as the UI). The cursor
+    // also warms the particles it disturbs.
     float ember = step(0.88, aRand.z) * min(local, 1.0);
     float spark = step(0.965, aRand.z) * uWLine;
-    float heat = clamp(ember + spark, 0.0, 1.0);
+    float touched = step(0.55, aRand.z) * field * 0.9;
+    float heat = clamp(ember + spark + touched, 0.0, 1.0);
 
     vAlpha = vis * twinkle * uAlpha * travelGlow * (1.0 + heat * 0.8);
     vColor = mix(aColor, uHot, heat);

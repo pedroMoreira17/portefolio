@@ -7,6 +7,7 @@ import {
   Points,
   Scene,
   ShaderMaterial,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from 'three';
@@ -50,6 +51,8 @@ export class ParticleEngine {
   private visW = 1;
   private visH = 1;
   private pointer = { x: 0, y: 0, tx: 0, ty: 0 };
+  /** Cursor / touch force field: target and smoothed position (NDC), presence and motion energy. */
+  private field = { x: 0, y: 0, tx: 0, ty: 0, hover: false, energy: 0, force: 0 };
   private drawCount: number;
 
   // FPS governor
@@ -112,6 +115,8 @@ export class ParticleEngine {
         uMotion: { value: 1 },
         // --c-hot (#ff5a1f) as 0..1 sRGB, matching the CSS accent
         uHot: { value: new Vector3(1.0, 0.353, 0.122) },
+        uPointer: { value: new Vector2() },
+        uPointerForce: { value: 0 },
       },
     });
 
@@ -125,6 +130,10 @@ export class ParticleEngine {
     this.resize();
     window.addEventListener('resize', this.resize);
     window.addEventListener('pointermove', this.onPointer, { passive: true });
+    window.addEventListener('pointerdown', this.onPointer, { passive: true });
+    window.addEventListener('pointerup', this.onPointerEnd, { passive: true });
+    window.addEventListener('pointercancel', this.onPointerEnd, { passive: true });
+    document.documentElement.addEventListener('pointerleave', this.onPointerEnd, { passive: true });
   }
 
   get particleCount() {
@@ -147,6 +156,10 @@ export class ParticleEngine {
     this.stop();
     window.removeEventListener('resize', this.resize);
     window.removeEventListener('pointermove', this.onPointer);
+    window.removeEventListener('pointerdown', this.onPointer);
+    window.removeEventListener('pointerup', this.onPointerEnd);
+    window.removeEventListener('pointercancel', this.onPointerEnd);
+    document.documentElement.removeEventListener('pointerleave', this.onPointerEnd);
     this.geometry.dispose();
     this.material.dispose();
     this.renderer.dispose();
@@ -154,9 +167,35 @@ export class ParticleEngine {
   }
 
   private onPointer = (e: PointerEvent) => {
-    if (e.pointerType !== 'mouse') return;
-    this.pointer.tx = (e.clientX / window.innerWidth) * 2 - 1;
-    this.pointer.ty = (e.clientY / window.innerHeight) * 2 - 1;
+    const nx = (e.clientX / window.innerWidth) * 2 - 1;
+    const ny = (e.clientY / window.innerHeight) * 2 - 1;
+    const mouse = e.pointerType === 'mouse';
+    if (mouse) {
+      // parallax follows the mouse only: a finger would tilt the portrait on every scroll
+      this.pointer.tx = nx;
+      this.pointer.ty = ny;
+    }
+
+    const f = this.field;
+    if (e.type === 'pointerdown') {
+      if (!mouse) f.energy = 1; // a tap ripples through the particles
+    } else {
+      f.energy = Math.min(1, f.energy + Math.hypot(nx - f.tx, ny - f.ty) * 1.6);
+    }
+    f.tx = nx;
+    f.ty = ny;
+    // nothing is displaced yet → appear under the pointer instead of sweeping across the screen
+    if (f.force < 0.02) {
+      f.x = nx;
+      f.y = ny;
+    }
+    f.hover = mouse;
+  };
+
+  /** Mouse left the window, or the finger lifted: let the field fade out. */
+  private onPointerEnd = (e: PointerEvent) => {
+    if (e.type === 'pointerup' && e.pointerType === 'mouse') return;
+    this.field.hover = false;
   };
 
   private resize = () => {
@@ -250,6 +289,18 @@ export class ParticleEngine {
     const motion = reduced ? 0 : 1;
     this.points.rotation.y = (Math.sin(time * 0.17) * 0.09 + p.x * 0.1) * faceWeight * motion;
     this.points.rotation.x = (Math.sin(time * 0.13) * 0.03 + p.y * 0.05) * faceWeight * motion;
+
+    // pointer force field: a resting cursor leaves a soft dent, movement stirs it up
+    const f = this.field;
+    const follow = Math.min(1, dt * 14);
+    f.x += (f.tx - f.x) * follow;
+    f.y += (f.ty - f.y) * follow;
+    f.energy *= Math.exp(-dt * 1.8);
+    const forceTarget = Math.min(1, (f.hover ? 0.28 : 0) + f.energy);
+    f.force += (forceTarget - f.force) * Math.min(1, dt * (forceTarget > f.force ? 9 : 3));
+    const tanHalfFov = Math.tan((FOV * Math.PI) / 360);
+    (u.uPointer.value as Vector2).set(f.x * tanHalfFov * this.camera.aspect, -f.y * tanHalfFov);
+    u.uPointerForce.value = f.force;
 
     this.renderer.render(this.scene, this.camera);
   };

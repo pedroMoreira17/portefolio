@@ -20,6 +20,13 @@ export interface StackGroup {
   items: (string | Localized)[];
 }
 
+export interface ProjectLink {
+  kind: 'live' | 'repo' | 'caseStudy';
+  href: string;
+  /** Short text shown next to the label, e.g. the bare domain. */
+  display?: string;
+}
+
 export interface Project {
   id: string;
   number: string;
@@ -37,6 +44,8 @@ export interface Project {
   visual: 'holyvestor' | 'rhsuite' | 'easyshop';
   /** Real screenshot; when absent a generative composition is shown instead. */
   screenshot?: ProjectScreenshot;
+  /** Where the visitor can go next. Omit when nothing is public. */
+  links?: ProjectLink[];
   accent: Accent;
 }
 
@@ -78,6 +87,7 @@ export const projects: Project[] = [
       alt: { en: 'HolyVestor landing page', pt: 'Página inicial da HolyVestor' },
       focus: '62% 50%',
     },
+    links: [{ kind: 'live', href: 'https://holyvestor.com', display: 'holyvestor.com' }],
     accent: 'green',
   },
   {

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { useI18n } from '../../hooks/useI18n';
 import type { Project } from '../../data/projects/projects';
 import { SplitWords } from '../typography/SplitWords';
@@ -87,6 +88,19 @@ function ProjectShowcaseBase({ project, total, reducedMotion }: Props) {
               </li>
             ))}
           </ol>
+          {project.links?.length ? (
+            <ul className="project__links" data-reveal>
+              {project.links.map((link) => (
+                <li key={link.kind}>
+                  <a className="project__link" href={link.href} target="_blank" rel="noopener noreferrer">
+                    <span className="project__link-label mono">{t.projects.links[link.kind]}</span>
+                    {link.display && <span className="project__link-value">{link.display}</span>}
+                    <ArrowUpRight className="project__link-icon" size={20} strokeWidth={1} aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           {project.note && (
             <p className="project__note mono" data-reveal>
               {l(project.note)}
